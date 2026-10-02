@@ -1,17 +1,21 @@
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./mongodb/connection')
-require('dotenv').config();
-const httpLogger = require("./utils/httpLogger");
+const app = require("./app");
+const connectDB = require("./config/db");
 const logger = require("./utils/logger");
-
-const app = express();
-app.use(express.json());
-app.use(httpLogger);
-app.use(cors());
-
-// Connect to MongoDB (replace with your database link)
-connectDB(process.env.MONGO_URL);
+require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>   logger.info(`Server running on port ${PORT}`));
+
+const startServer = async () => {
+  try {
+    await connectDB(process.env.MONGO_URL);
+
+    app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    logger.error("Failed to start server", error);
+    process.exit(1);
+  }
+};
+
+startServer();
