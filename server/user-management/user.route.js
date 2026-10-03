@@ -11,39 +11,41 @@ const {
 const userValidation = require("./user.validation");
 const validate = require("../middleware/validate");
 
+const authenticate = require("../middleware/authenticate");
+const authorizeAdmin = require("../middleware/authorizeAdmin");
+
 const router = express.Router();
 
 router.post(
   "/",
-  userValidation.createUser,
-  validate,
-  createUser
+  authenticate,
+  authorizeAdmin,
+  validate(userValidation.createUser),
+  createUser,
 );
 
-router.get(
-  "/",
-  getUsers
-);
+router.get("/", authenticate, getUsers);
 
 router.get(
   "/:id",
-  userValidation.getUserById,
-  validate,
-  getUserById
+  authenticate,
+  validate(userValidation.getUserById),
+  getUserById,
 );
 
 router.patch(
   "/:id",
-  userValidation.updateUser,
-  validate,
-  updateUser
+  authenticate,
+  validate(userValidation.updateUser),
+  updateUser,
 );
 
 router.delete(
   "/:id",
-  userValidation.deleteUser,
-  validate,
-  deleteUser
+  authenticate,
+  authorizeAdmin,
+  validate(userValidation.deleteUser),
+  deleteUser,
 );
 
 module.exports = router;
