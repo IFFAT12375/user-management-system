@@ -5,9 +5,9 @@ const authService = require("./auth.service");
 const {
   sendSuccess,
   sendError,
-} = require("../../utils/apiResponse");
+} = require("../utils/apiResponse");
 
-const logger = require("../../utils/logger");
+const logger = require("../utils/logger");
 
 const register = async (req, res) => {
   try {

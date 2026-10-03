@@ -1,13 +1,13 @@
-const User = require("../user/user.model");
+const User = require("../user-management/user.model");
 
 const {
   hashPassword,
   comparePassword,
-} = require("../../utils/password");
+} = require("../utils/password");
 
 const {
   generateToken,
-} = require("../../utils/jwt");
+} = require("../utils/jwt");
 
 const register = async ({ name, email, password }) => {
   const existingUser = await User.findOne({ email });
