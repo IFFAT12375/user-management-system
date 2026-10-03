@@ -24,20 +24,14 @@ const userValidation = {
 
     body("role")
       .optional()
-      .isString()
-      .withMessage("Role must be a string"),
+      .isIn(["User", "Admin"])
+      .withMessage("Role must be either User or Admin"),
   ],
 
-  getUserById: [
-    param("id")
-      .isMongoId()
-      .withMessage("Invalid user ID"),
-  ],
+  getUserById: [param("id").isMongoId().withMessage("Invalid user ID")],
 
   updateUser: [
-    param("id")
-      .isMongoId()
-      .withMessage("Invalid user ID"),
+    param("id").isMongoId().withMessage("Invalid user ID"),
 
     body("name")
       .optional()
@@ -56,17 +50,10 @@ const userValidation = {
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters"),
 
-    body("role")
-      .optional()
-      .isString()
-      .withMessage("Role must be a string"),
+    body("role").optional().isString().withMessage("Role must be a string"),
   ],
 
-  deleteUser: [
-    param("id")
-      .isMongoId()
-      .withMessage("Invalid user ID"),
-  ],
+  deleteUser: [param("id").isMongoId().withMessage("Invalid user ID")],
 };
 
 module.exports = userValidation;
