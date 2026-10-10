@@ -2,6 +2,19 @@ const { body, param } = require("express-validator");
 
 const userValidation = {
   createUser: [
+    body().custom((value) => {
+      const allowedFields = ["name", "email", "password"];
+      const invalidFields = Object.keys(value || {}).filter(
+        (field) => !allowedFields.includes(field)
+      );
+
+      if (invalidFields.length > 0) {
+        throw new Error("Only name, email, and password can be provided");
+      }
+
+      return true;
+    }),
+
     body("name")
       .trim()
       .notEmpty()
@@ -22,10 +35,6 @@ const userValidation = {
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters"),
 
-    body("role")
-      .optional()
-      .isIn(["User", "Admin"])
-      .withMessage("Role must be either User or Admin"),
   ],
 
   getUserById: [param("id").isMongoId().withMessage("Invalid user ID")],

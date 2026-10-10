@@ -8,6 +8,7 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import UserDetailsModal from "../../components/users/UserDetailsModal";
 import UserFormModal from "../../components/users/UserFormModal";
+import { isAdmin } from "../../utils/authorization";
 
 const PAGE_SIZE = 5;
 
@@ -41,8 +42,7 @@ const UserList = () => {
   );
   const firstEntry = usersOnly.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
   const lastEntry = Math.min(currentPage * PAGE_SIZE, usersOnly.length);
-  const isAdmin = currentUser?.role === "Admin";
-  const currentUserId = currentUser?._id || currentUser?.id;
+  const canManageUsers = isAdmin(currentUser);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -89,6 +89,8 @@ const UserList = () => {
   }, [refreshKey]);
 
   const openForm = (user = null) => {
+    if (!canManageUsers) return;
+
     setSelectedUser(user);
     setActiveModal("form");
     setSuccess("");
@@ -100,11 +102,19 @@ const UserList = () => {
   }, []);
 
   const handleSave = async (userData) => {
+    if (!canManageUsers) {
+      throw new Error("Only Admin users can create or edit users.");
+    }
+
     if (selectedUser) {
       await userService.update(selectedUser._id, userData);
       setSuccess("User updated successfully.");
     } else {
-      await userService.create({ ...userData, role: "User" });
+      await userService.create({
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+      });
       setSuccess("User created successfully.");
     }
 
@@ -114,7 +124,7 @@ const UserList = () => {
   };
 
   const handleDelete = async () => {
-    if (!deleteTarget) return;
+    if (!canManageUsers || !deleteTarget) return;
 
     setDeleteLoading(true);
     setDeleteError("");
@@ -152,7 +162,7 @@ const UserList = () => {
           <h1>User Management</h1>
           <p>View and manage user accounts.</p>
         </div>
-        {isAdmin && (
+        {canManageUsers && (
           <button
             type="button"
             className="btn btn-primary add-user-button"
@@ -214,7 +224,7 @@ const UserList = () => {
                         <circle cx="12" cy="12" r="3" />
                       </svg>
                     </button>
-                    {(isAdmin || currentUserId === user._id) && (
+                    {canManageUsers && (
                       <button
                         type="button"
                         className="icon-button"
@@ -227,7 +237,7 @@ const UserList = () => {
                         </svg>
                       </button>
                     )}
-                    {isAdmin && (
+                    {canManageUsers && (
                       <button
                         type="button"
                         className="icon-button delete-user-button"
@@ -290,7 +300,7 @@ const UserList = () => {
         </div>
       )}
 
-      {activeModal === "form" && (
+      {canManageUsers && activeModal === "form" && (
         <UserFormModal
           isOpen
           onClose={closeModal}
@@ -305,7 +315,7 @@ const UserList = () => {
           user={selectedUser}
         />
       )}
-      {deleteTarget && (
+      {canManageUsers && deleteTarget && (
         <Modal
           isOpen
           onClose={() => {

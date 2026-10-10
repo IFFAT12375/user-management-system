@@ -8,7 +8,7 @@ const toPublicUser = (user) => ({
   role: user.role,
 });
 
-const createUser = async ({ name, email, password, role }) => {
+const createUser = async ({ name, email, password }) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
@@ -22,7 +22,7 @@ const createUser = async ({ name, email, password, role }) => {
     name,
     email,
     password: hashedPassword,
-    role,
+    role: "User",
   });
 
   return toPublicUser(user);

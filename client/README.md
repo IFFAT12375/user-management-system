@@ -1,16 +1,5 @@
-# React + Vite
+**What I did:** Built a MERN-based User Management application with authentication, registration, login, session restoration, protected routes, and CRUD functionality using React, Context API, Axios, Express, and MongoDB.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Challenges:** Integrating frontend and backend APIs, managing authentication tokens and session state, handling API errors, and implementing reusable components.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**Learnings:** Improved my understanding of REST APIs, JWT authentication, React hooks, Context API, protected routes, reusable modals, and full-stack application development.

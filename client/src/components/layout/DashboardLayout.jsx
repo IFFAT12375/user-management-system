@@ -6,6 +6,7 @@ import UserDetailsModal from "../users/UserDetailsModal";
 import UserFormModal from "../users/UserFormModal";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import { isAdmin } from "../../utils/authorization";
 
 const DashboardLayout = () => {
   const { user, logout, updateCurrentUser } = useAuth();
@@ -14,6 +15,7 @@ const DashboardLayout = () => {
   const [activeModal, setActiveModal] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [profileSuccess, setProfileSuccess] = useState("");
+  const canManageUsers = isAdmin(user);
 
   const closeModal = useCallback(() => setActiveModal(null), []);
   const refreshContent = useCallback(() => {
@@ -37,6 +39,10 @@ const DashboardLayout = () => {
   };
 
   const handleProfileSave = async (userData) => {
+    if (!canManageUsers) {
+      throw new Error("Only Admin users can edit user accounts.");
+    }
+
     const userId = user?._id || user?.id;
     if (!userId) {
       throw new Error("Unable to identify the signed-in user.");
@@ -88,10 +94,14 @@ const DashboardLayout = () => {
           isOpen
           onClose={closeModal}
           user={user}
-          onEdit={() => setActiveModal("edit-profile")}
+          onEdit={
+            canManageUsers
+              ? () => setActiveModal("edit-profile")
+              : undefined
+          }
         />
       )}
-      {activeModal === "edit-profile" && (
+      {activeModal === "edit-profile" && canManageUsers && (
         <UserFormModal
           isOpen
           onClose={closeModal}
