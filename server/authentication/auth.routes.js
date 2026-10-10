@@ -4,6 +4,7 @@ const { register, login, refresh, logout, getMe } = require("./auth.controller")
 
 const authValidation = require("./auth.validation");
 const validate = require("../middleware/validate");
+const authenticate = require("../middleware/authenticate");
 
 const router = express.Router();
 
