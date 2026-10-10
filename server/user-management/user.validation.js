@@ -33,6 +33,27 @@ const userValidation = {
   updateUser: [
     param("id").isMongoId().withMessage("Invalid user ID"),
 
+    body().custom((value) => {
+      if (!value || typeof value !== "object" || Array.isArray(value)) {
+        throw new Error("User details are required");
+      }
+
+      const allowedFields = ["name", "email"];
+      const invalidFields = Object.keys(value).filter(
+        (field) => !allowedFields.includes(field)
+      );
+
+      if (invalidFields.length > 0) {
+        throw new Error("Only name and email can be updated");
+      }
+
+      if (Object.keys(value).length === 0) {
+        throw new Error("At least one user detail must be provided");
+      }
+
+      return true;
+    }),
+
     body("name")
       .optional()
       .trim()
@@ -45,12 +66,6 @@ const userValidation = {
       .isEmail()
       .withMessage("Please provide a valid email"),
 
-    body("password")
-      .optional()
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters"),
-
-    body("role").optional().isString().withMessage("Role must be a string"),
   ],
 
   deleteUser: [param("id").isMongoId().withMessage("Invalid user ID")],

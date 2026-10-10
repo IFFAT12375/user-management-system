@@ -4,6 +4,8 @@ import { useOutletContext } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import userService from "../../services/userService";
 import ErrorMessage from "../../components/common/ErrorMessage";
+import Button from "../../components/common/Button";
+import Modal from "../../components/common/Modal";
 import UserDetailsModal from "../../components/users/UserDetailsModal";
 import UserFormModal from "../../components/users/UserFormModal";
 
@@ -25,6 +27,9 @@ const UserList = () => {
   const [success, setSuccess] = useState("");
   const [activeModal, setActiveModal] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const usersOnly = users.filter(
     (user) => user.role?.toLowerCase() !== "admin"
@@ -36,6 +41,8 @@ const UserList = () => {
   );
   const firstEntry = usersOnly.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
   const lastEntry = Math.min(currentPage * PAGE_SIZE, usersOnly.length);
+  const isAdmin = currentUser?.role === "Admin";
+  const currentUserId = currentUser?._id || currentUser?.id;
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -106,6 +113,38 @@ const UserList = () => {
     await fetchUsers();
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    setDeleteLoading(true);
+    setDeleteError("");
+
+    try {
+      await userService.remove(deleteTarget._id);
+      const updatedUsers = users.filter(
+        (user) => user._id !== deleteTarget._id
+      );
+      const remainingPages = Math.max(
+        1,
+        Math.ceil(
+          updatedUsers.filter((user) => user.role?.toLowerCase() !== "admin")
+            .length / PAGE_SIZE
+        )
+      );
+      setUsers(updatedUsers);
+      setCurrentPage((page) => Math.min(page, remainingPages));
+      setSuccess("User deleted successfully.");
+      setDeleteTarget(null);
+    } catch (deleteRequestError) {
+      setDeleteError(
+        deleteRequestError.response?.data?.message ||
+          "Unable to delete the user."
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   return (
     <main className="users-container">
       <div className="users-heading">
@@ -113,7 +152,7 @@ const UserList = () => {
           <h1>User Management</h1>
           <p>View and manage user accounts.</p>
         </div>
-        {currentUser?.role === "Admin" && (
+        {isAdmin && (
           <button
             type="button"
             className="btn btn-primary add-user-button"
@@ -175,17 +214,35 @@ const UserList = () => {
                         <circle cx="12" cy="12" r="3" />
                       </svg>
                     </button>
-                    <button
-                      type="button"
-                      className="icon-button"
-                      aria-label={`Edit ${user.name}`}
-                      title="Edit user"
-                      onClick={() => openForm(user)}
-                    >
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="m15 5 4 4M4 20l4-.8L19.5 7.7a2.12 2.12 0 0 0-3-3L5 16.2 4 20Z" />
-                      </svg>
-                    </button>
+                    {(isAdmin || currentUserId === user._id) && (
+                      <button
+                        type="button"
+                        className="icon-button"
+                        aria-label={`Edit ${user.name}`}
+                        title="Edit user"
+                        onClick={() => openForm(user)}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="m15 5 4 4M4 20l4-.8L19.5 7.7a2.12 2.12 0 0 0-3-3L5 16.2 4 20Z" />
+                        </svg>
+                      </button>
+                    )}
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        className="icon-button delete-user-button"
+                        aria-label={`Delete ${user.name}`}
+                        title="Delete user"
+                        onClick={() => {
+                          setDeleteTarget(user);
+                          setDeleteError("");
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
+                        </svg>
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -247,6 +304,40 @@ const UserList = () => {
           onClose={closeModal}
           user={selectedUser}
         />
+      )}
+      {deleteTarget && (
+        <Modal
+          isOpen
+          onClose={() => {
+            if (!deleteLoading) setDeleteTarget(null);
+          }}
+          title="Delete User"
+          size="sm"
+        >
+          <p>
+            Are you sure you want to delete <strong>{deleteTarget.name}</strong>?
+            This action cannot be undone.
+          </p>
+          <ErrorMessage message={deleteError} />
+          <div className="modal-actions">
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={deleteLoading}
+              onClick={() => setDeleteTarget(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              loading={deleteLoading}
+              onClick={handleDelete}
+            >
+              Delete User
+            </Button>
+          </div>
+        </Modal>
       )}
     </main>
   );

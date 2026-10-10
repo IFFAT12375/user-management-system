@@ -1,4 +1,12 @@
 const User = require("./user.model");
+const { hashPassword } = require("../utils/password");
+
+const toPublicUser = (user) => ({
+  _id: user._id.toString(),
+  name: user.name,
+  email: user.email,
+  role: user.role,
+});
 
 const createUser = async ({ name, email, password, role }) => {
   const existingUser = await User.findOne({ email });
@@ -9,22 +17,24 @@ const createUser = async ({ name, email, password, role }) => {
     throw error;
   }
 
+  const hashedPassword = await hashPassword(password);
   const user = await User.create({
     name,
     email,
-    password,
+    password: hashedPassword,
     role,
   });
 
-  return user;
+  return toPublicUser(user);
 };
 
 const getUsers = async () => {
-  return User.find().select("-password");
+  const users = await User.find().select("-password");
+  return users.map(toPublicUser);
 };
 
 const getUserById = async (id) => {
-  const user = await User.findById(id);
+  const user = await User.findById(id).select("-password");
 
   if (!user) {
     const error = new Error("User not found");
@@ -32,18 +42,22 @@ const getUserById = async (id) => {
     throw error;
   }
 
-  return user;
+  return toPublicUser(user);
 };
 
 const updateUser = async (id, data) => {
+  const updates = {};
+  if (data.name !== undefined) updates.name = data.name;
+  if (data.email !== undefined) updates.email = data.email;
+
   const user = await User.findByIdAndUpdate(
     id,
-    data,
+    updates,
     {
       new: true,
       runValidators: true,
-    }
-  );
+    },
+  ).select("-password");
 
   if (!user) {
     const error = new Error("User not found");
@@ -51,7 +65,7 @@ const updateUser = async (id, data) => {
     throw error;
   }
 
-  return user;
+  return toPublicUser(user);
 };
 
 const deleteUser = async (id) => {
@@ -63,7 +77,7 @@ const deleteUser = async (id) => {
     throw error;
   }
 
-  return user;
+  return toPublicUser(user);
 };
 
 module.exports = {

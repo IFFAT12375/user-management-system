@@ -460,6 +460,11 @@ body {
   border-color: #cbd5e1;
 }
 
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
