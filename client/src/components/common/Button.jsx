@@ -4,13 +4,14 @@ const Button = ({
   loading = false,
   disabled = false,
   onClick,
+  variant = "primary",
 }) => {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className="btn"
+      className={`btn btn-${variant}`}
     >
       {loading ? "Please wait..." : children}
     </button>
