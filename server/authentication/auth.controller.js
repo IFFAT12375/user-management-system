@@ -128,9 +128,31 @@ const logout = async (req, res) => {
   }
 };
 
+const getMe = async (req, res) => {
+  try {
+    const user = await authService.getCurrentUser(
+      req.user.userId
+    );
+
+    return sendSuccess(
+      res,
+      StatusCodes.OK,
+      "Current user retrieved successfully",
+      { user }
+    );
+  } catch (error) {
+    return sendError(
+      res,
+      error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+      error.message
+    );
+  }
+};
+
 module.exports = {
   register,
   login,
   refresh,
   logout,
+  getMe,
 };

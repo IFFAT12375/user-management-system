@@ -140,8 +140,21 @@ const refreshAccessToken = async (refreshToken) => {
   };
 };
 
+const getCurrentUser = async (userId) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return formatUser(user);
+};
+
 module.exports = {
   register,
   login,
   refreshAccessToken,
+  getCurrentUser,
 };
