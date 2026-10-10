@@ -36,6 +36,7 @@ router.get(
 router.patch(
   "/:id",
   authenticate,
+  authorizeAdmin,
   validate(userValidation.updateUser),
   updateUser,
 );

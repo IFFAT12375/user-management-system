@@ -1,10 +1,13 @@
 
 import { useCallback, useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import userService from "../../services/userService";
 import ErrorMessage from "../../components/common/ErrorMessage";
 import UserDetailsModal from "../../components/users/UserDetailsModal";
 import UserFormModal from "../../components/users/UserFormModal";
+
+const PAGE_SIZE = 5;
 
 const toSafeUser = (user) => ({
   _id: user._id || user.id,
@@ -15,17 +18,30 @@ const toSafeUser = (user) => ({
 
 const UserList = () => {
   const { user: currentUser } = useAuth();
+  const { refreshKey } = useOutletContext();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [activeModal, setActiveModal] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersOnly = users.filter(
+    (user) => user.role?.toLowerCase() !== "admin"
+  );
+  const pageCount = Math.ceil(usersOnly.length / PAGE_SIZE);
+  const visibleUsers = usersOnly.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+  const firstEntry = usersOnly.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+  const lastEntry = Math.min(currentPage * PAGE_SIZE, usersOnly.length);
 
   const fetchUsers = useCallback(async () => {
     try {
       const result = await userService.getAll();
       setUsers(Array.isArray(result) ? result.map(toSafeUser) : []);
+      setCurrentPage(1);
       setError("");
     } catch (fetchError) {
       setError(
@@ -44,6 +60,7 @@ const UserList = () => {
         const result = await userService.getAll();
         if (isCurrentRequest) {
           setUsers(Array.isArray(result) ? result.map(toSafeUser) : []);
+          setCurrentPage(1);
           setError("");
         }
       } catch (fetchError) {
@@ -62,7 +79,7 @@ const UserList = () => {
     return () => {
       isCurrentRequest = false;
     };
-  }, []);
+  }, [refreshKey]);
 
   const openForm = (user = null) => {
     setSelectedUser(user);
@@ -112,12 +129,18 @@ const UserList = () => {
 
       {loading && <p role="status">Loading users...</p>}
 
-      {!loading && !error && users.length === 0 && (
+      {!loading && !error && usersOnly.length === 0 && (
         <p className="empty-state">No users found.</p>
       )}
 
-      {users.length > 0 && (
+      {usersOnly.length > 0 && (
         <div className="users-table-wrapper">
+          <div className="table-toolbar">
+            <div>
+              <h2>Users</h2>
+              <p>Showing {firstEntry}–{lastEntry} of {usersOnly.length} users</p>
+            </div>
+          </div>
           <table className="users-table">
             <thead>
               <tr>
@@ -131,7 +154,7 @@ const UserList = () => {
             </thead>
 
             <tbody>
-              {users.map((user) => (
+              {visibleUsers.map((user) => (
                 <tr key={user._id}>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
@@ -168,6 +191,45 @@ const UserList = () => {
               ))}
             </tbody>
           </table>
+          <div className="table-pagination">
+            <span>
+              Page {currentPage} of {pageCount}
+            </span>
+            <div className="pagination-controls">
+              <button
+                type="button"
+                className="pagination-button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    className={`pagination-button pagination-number${page === currentPage ? " is-current" : ""}`}
+                    onClick={() => setCurrentPage(page)}
+                    aria-label={`Go to page ${page}`}
+                    aria-current={page === currentPage ? "page" : undefined}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+              <button
+                type="button"
+                className="pagination-button"
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(pageCount, page + 1))
+                }
+                disabled={currentPage === pageCount}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

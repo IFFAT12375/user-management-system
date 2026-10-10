@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import useAuth from "../hooks/useAuth";
 import Button from "../components/common/Button";
@@ -8,6 +8,7 @@ import ErrorMessage from "../components/common/ErrorMessage";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -52,6 +53,7 @@ const Login = () => {
         <h1>Welcome back</h1>
         <p>Log in to your account.</p>
 
+        <ErrorMessage message={location.state?.logoutError} />
         <ErrorMessage message={error} />
 
         <div className="form-group">

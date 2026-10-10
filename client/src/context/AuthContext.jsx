@@ -36,6 +36,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateCurrentUser = (updatedUser) => {
+    setUser((currentUser) => ({
+      ...currentUser,
+      id: updatedUser.id || updatedUser._id || currentUser.id || currentUser._id,
+      name: updatedUser.name ?? currentUser.name,
+      email: updatedUser.email ?? currentUser.email,
+      role: updatedUser.role ?? currentUser.role,
+    }));
+  };
+
   const restoreSession = useCallback(async () => {
     try {
       const result = await authService.refresh();
@@ -63,6 +73,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateCurrentUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
