@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import Modal from "../../components/common/Modal";
 
 import userService from "../../services/userService";
 import ErrorMessage from "../../components/common/ErrorMessage";
@@ -8,6 +9,8 @@ const UserList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -73,6 +76,18 @@ const UserList = () => {
           </table>
         </div>
       )}
+      <button onClick={() => setIsModalOpen(true)}>
+      Test Modal
+    </button>
+
+    <Modal
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      title="Test Modal"
+      size="md"
+    >
+      <p>Your reusable modal is working!</p>
+    </Modal>
     </main>
   );
 };
