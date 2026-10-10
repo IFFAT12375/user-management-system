@@ -46,7 +46,7 @@ const Register = () => {
         password: formData.password,
       });
 
-      navigate("/users");
+      navigate("/login");
     } catch (error) {
       setError(
         error.response?.data?.message ||
