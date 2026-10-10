@@ -20,7 +20,7 @@ const createUser = async ({ name, email, password, role }) => {
 };
 
 const getUsers = async () => {
-  return User.find();
+  return User.find().select("-password");
 };
 
 const getUserById = async (id) => {

@@ -182,3 +182,36 @@
     border-right-color: var(--border);
   }
 }
+
+
+.users-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.users-table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.users-table th,
+.users-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table th {
+  background: #f8fafc;
+}
+
+.users-table tbody tr:hover {
+  background: #f8fafc;
+}
