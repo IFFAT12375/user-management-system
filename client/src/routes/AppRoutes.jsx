@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import UserList from "../pages/users/UserList";
+import UserList from "../pages/ users/UserList";
 import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () => {
