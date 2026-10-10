@@ -17,4 +17,6 @@ With the backend running, open [`http://localhost:5000/api-docs`](http://localho
 
 Use **Try it out** on an endpoint to submit a request. Register or log in to receive an access token and refresh-token cookie. Use **Authorize** and paste the access token to call protected routes. Swagger is served by this backend, so the browser sends the HttpOnly refresh cookie to the refresh and logout routes.
 
+Swagger UI does not persist bearer authorization when the page is reloaded. Use **Authorize** again with a fresh access token after a reload.
+
 User list and details endpoints require authentication. Create, edit, and delete user endpoints require an authenticated user with the exact `Admin` role. Registration creates a regular `User`.
