@@ -8,4 +8,18 @@ const api = axios.create({
   },
 });
 
+// In-memory access token. It disappears on page reload.
+let accessToken = null;
+
+export const setAccessToken = (token) => {
+    accessToken = token;
+};
+
+api.interceptors.request.use((config) => {
+    if(accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+});
+
 export default api;
